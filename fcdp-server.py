@@ -41,7 +41,7 @@ class ConnectedClient(object):
 		self.port = -1
 
 class FCDProPlus(object):
-	def __init__(self, ad=None, cd=None, swapiq=None, lna_gain=True, mixer_gain=True, if_gain=0, init_freq=7000000):
+	def __init__(self, ad=None, cd=None, swapiq=None, lna_gain=True, mixer_gain=True, if_gain=0, init_freq=100000000):
 		self.ad = ad
 		if not self.ad:
 			self.ad = self.autodetect_ad()
@@ -49,7 +49,7 @@ class FCDProPlus(object):
 		if not self.cd:
 			self.cd = self.autodetect_cd()
 		if not self.ad or not self.cd:
-			raise IOError, 'FCDPro+ device not found'
+			raise IOError, 'FCDPro device not found'
 		self.swapiq = swapiq
 
 		self.ver = self.get_fw_ver()
@@ -60,12 +60,12 @@ class FCDProPlus(object):
 
 	def autodetect_ad(self):
 		try:
-			return 'hw:%s' % (alsaaudio.cards().index('V20'))
+			return 'hw:%s' % (alsaaudio.cards().index('V1.0'))
 		except:
 			return None
 
 	def autodetect_cd(self):
-		return (0x04d8, 0xfb31)
+		return (0x04d8, 0xfb56)
 
 	def get_fw_ver(self):
 		d = apply(hid.device, self.cd)
@@ -105,7 +105,7 @@ class FCDProPlus(object):
 	def get_pcm(self, period=1024):
 		pcm = alsaaudio.PCM(type=alsaaudio.PCM_CAPTURE, mode=alsaaudio.PCM_NORMAL, card=self.ad)
 		pcm.setchannels(2)
-		pcm.setrate(192000)
+		pcm.setrate(96000)
 		pcm.setformat(alsaaudio.PCM_FORMAT_S16_LE)
 		pcm.setperiodsize(period)
 		return pcm
@@ -150,7 +150,7 @@ class ListenerHandler(SocketServer.BaseRequestHandler):
 					continue
 				shared.clients[caddr].receiver = int(m.group(1))
 				shared.release()
-				self.request.sendall('OK 192000')
+				self.request.sendall('OK 96000')
 				continue
 			m = re.search('^detach (\d+)', data, re.M)
 			if m:
@@ -166,7 +166,7 @@ class ListenerHandler(SocketServer.BaseRequestHandler):
 				shared.clients[caddr].receiver = -1
 				shared.clients[caddr].port = -1
 				shared.release()
-				self.request.sendall('OK 192000')
+				self.request.sendall('OK 96000')
 				continue
 			m = re.search('^frequency ([0-9.,e+-]+)', data, re.M)
 			if m:
@@ -293,7 +293,7 @@ shared = SharedData(predsp='-p' in sys.argv)
 try:
 	fcd = FCDProPlus(swapiq='-s' in sys.argv)
 except IOError:
-	sys.stderr.write('FCDPro+ device not found\n')
+	sys.stderr.write('FCDPro device not found\n')
 	sys.exit(0)
 ft = create_fcdproplus_thread(shared, fcd, 0)
 
