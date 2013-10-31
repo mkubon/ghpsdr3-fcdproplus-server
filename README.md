@@ -12,15 +12,15 @@ Todo:
  - support for multiple receivers (it's incomplete).
 
 Basic usage:
- - run fcd-server.py
+ - run fcdpro-server.py
  - run dspserver
  - run QtRadio
 
 Predsp:
-If you want to run fcd-server.py on embedded hardware (like BeagleBone Black in my case),
+If you want to run fcdpro-server.py on embedded hardware (like BeagleBone Black in my case),
 you probably would want to move all data preprocessing (eg. conversion from ints to floats)
 to host running dspserver. For that purpouse I wrote small script called predsp.py. Usage:
- - on embedded host run 'fcd-server.py -p'
+ - on embedded host run 'fcdpro-server.py -p'
  - on more capable host run 'predsp.py' and 'dspserver --server <embedded host ip>'
  - run QtRadio or another client and point it to dspserver's address
 
